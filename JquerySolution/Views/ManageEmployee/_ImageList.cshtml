@@ -1,0 +1,29 @@
+﻿<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnImageListClose").click(function () {
+            $('#AddImageModal').modal('show');
+            $('#ImageListByIdModal').modal('hide');
+        });
+    });
+</script>
+
+
+
+<form>
+    <div class="form-group">
+        <label>Images</label>
+        <input type="hidden" name="txtImgListEmpId" id="txtImgListEmpId" />
+    </div>
+    
+    <div id="imagelistforemployee">
+        
+    </div>
+    
+    <div style="margin-top: 15px">
+        <input type="button" name="btnImageInsert" value="Add Image" id="btnImageListClose" class="btn btn-default" />
+        <input type="button" name="btnImageInsert" value="Close" data-dismiss="modal"  class="btn btn-default" />
+    </div>
+</form>

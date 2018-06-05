@@ -1,0 +1,305 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/AdminLTE-master/plugins/datatables/jquery.dataTables.css" rel="stylesheet" />
+    <link href="~/AdminLTE-master/plugins/datatables/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/AdminLTE-master/plugins/datatables/jquery.dataTables.js"></script>
+    <script src="~/AdminLTE-master/plugins/datatables/dataTables.bootstrap.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#EmployeeList").DataTable();
+            $("#EmployeeList").on('click', '.deleteemp', function () {
+                //debugger;
+                var id = $(this).data('id');
+                //alert(id);
+                $.ajax({
+                    type: "POST",
+                    url: "/ManageEmployee/DeleteEmployee",
+                    data: "{'id':'" + id + "'}",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        $("#EmployeeList").load(" #EmployeeList");
+                    }
+                });
+            });
+
+            $("#EmployeeList").on('click', '.editemp', function () {
+                var id = $(this).data('eid');
+                var stateid = null, cityid = null;
+                $.ajax({
+                    type: "POST",
+                    url: "/ManageEmployee/EditEmployee",
+                    data: "{'id':'" + id + "'}",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        debugger;
+                        $("#txtEID").val(result.empid);
+                        $("#txtEditName").val(result.EName);
+                        $("#txtEditDepartment").val(result.DName);
+                        $("#txtEditMobile").val(result.Mobile);
+                        stateid = result.StateId;
+                        cityid = result.CityId;
+                        $("#txtEditCountry").val(result.CountryId);
+
+                        $('#txtEditState').empty();
+                        $.getJSON('/ManageEmployee/BindStateList/' + result.CountryId, function (data) {
+                            var items = '<option value="">Select a State</option>';
+                            $.each(data, function (i, state) {
+                                items += "<option value='" + state.Value + "'>" + state.Text + "</option>";
+                            });
+                            $('#txtEditState').html(items);
+                            $("#txtEditState").val(stateid);
+                        });
+
+                        $('#txtEditCity').empty();
+                        $.getJSON('/ManageEmployee/BindCityList/' + result.StateId, function (data) {
+                            var items = '<option value="">Select a City</option>';
+                            $.each(data, function (i, state) {
+                                items += "<option value='" + state.Value + "'>" + state.Text + "</option>";
+                            });
+                            $('#txtEditCity').html(items);
+                            $("#txtEditCity").val(cityid);
+                        });
+                    }
+                });
+            });
+
+            $("#EmployeeList").on('click', '.addimage', function () {
+                //debugger;
+                var id = $(this).data('eiid');
+                $("#txtImgEmpId").val(id);
+            });
+
+            $("#EmployeeList").on('click', '.multideleteemp', function () {
+                //debugger;
+                var empid = [];
+                $(".del_chk:checked").each(function () {
+                    empid.push($(this).attr('data-eid'));
+                });
+                if (empid.length > 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/ManageEmployee/MultiDeleteEmployee",
+                        data: "{'id':'" + empid + "'}",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (result) {
+                            $("#EmployeeList").load(" #EmployeeList");
+                        }
+                    });
+                }
+            });
+
+            $("#EmployeeList").on('change', '.del_chk', function () {
+                var length = $('.del_chk').length;
+                if ($('.del_chk:checked').length === $('.del_chk').length) {
+                    $("#alldeletechk")[0].checked = true;
+                } else {
+                    $("#alldeletechk")[0].checked = false;
+                }
+            });
+
+            $("#EmployeeList").on('change', '#alldeletechk', function () {
+                if ($(this).prop('checked')) {
+                    $('.del_chk').prop('checked', true);
+                }
+                else {
+                    $('.del_chk').prop('checked', false);
+                }
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <div style="margin-top: -56px; margin-left: 20px; margin-right: 20px;">
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" style="margin-bottom: 5px; float: right;">
+            Add Employee
+        </button>
+        <h3>EmployeeList</h3>
+        <table id="EmployeeList" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td style="width: 120px;" align="center">
+                        <input type="button" value="Delete" id="btnMultiDeleteEmployee" class="btn btn-info multideleteemp" />
+                    </td>
+                    <td align="center">
+                        <b>Index</b>
+                    </td>
+                    <td align="center">
+                        <b>Name</b>
+                    </td>
+                    <td align="center">
+                        <b>Department</b>
+                    </td>
+                    <td align="center">
+                        <b>Mobile</b>
+                    </td>
+                    <td align="center">
+                        <b>City</b>
+                    </td>
+                    <td align="center">
+                        <b>State</b>
+                    </td>
+                    <td align="center">
+                        <b>Country</b>
+                    </td>
+                    <td align="center"></td>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.EmployeeList != null)
+            {
+                int i = 0;
+                foreach (var item in ViewBag.EmployeeList)
+                {
+                    i = i + 1;
+                        <tr align="center">
+                            <td>
+                                <input type="checkbox" class="del_chk" data-eid="@item.EmpId">
+                            </td>
+                            <td>
+                                @i
+                            </td>
+                            <td class="employeename">
+                                @item.Name
+                            </td>
+                            <td class="departmentname">
+                                @item.Department
+                            </td>
+                            <td>
+                                @item.Mobile
+                            </td>
+                            <td>
+                                @item.City.City1
+                            </td>
+                            <td>
+                                @item.City.State.State1
+                            </td>
+                            <td>
+                                @item.City.State.Country.Country1
+                            </td>
+                            <td style="width: 250px;">
+                                <button type="button" id="btnEditEmployee" class="btn btn-info editemp" data-eid="@item.EmpId" data-toggle="modal" data-target="#EditModal">
+                                    Edit
+                                </button>
+                                <input type="button" value="Delete" id="btnDeleteEmployee" data-id="@item.EmpId" class="btn btn-info deleteemp" />
+                                <button type="button" id="btnAddEmpoyeeImage" class="btn btn-info addimage" data-eiid="@item.EmpId" data-toggle="modal" data-target="#AddImageModal">
+                                    Images
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr align="center">
+                    <td style="width: 120px;">
+                        <input type="checkbox" id="alldeletechk" />
+                    </td>
+                    <td align="center">
+                        <b>Index</b>
+                    </td>
+                    <td align="center">
+                        <b>Name</b>
+                    </td>
+                    <td align="center">
+                        <b>Department</b>
+                    </td>
+                    <td align="center">
+                        <b>Mobile</b>
+                    </td>
+                    <td align="center">
+                        <b>City</b>
+                    </td>
+                    <td align="center">
+                        <b>State</b>
+                    </td>
+                    <td align="center">
+                        <b>Country</b>
+                    </td>
+                    <td align="center"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!--Add Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Add Employee</h4>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_AddEmployee")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Edit Modal -->
+    <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="EditmyModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="EditmyModalLabel">Edit Employee</h4>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_EditEmployee")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Add Image-->
+    <div class="modal fade" id="AddImageModal" tabindex="-1" role="dialog" aria-labelledby="ImagemyModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ImagemyModalLabel">Images</h4>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_ImageForm")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Image List-->
+    <div class="modal fade" id="ImageListByIdModal" tabindex="-1" role="dialog" aria-labelledby="ImageListmyModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="ImageListmyModalLabel">Images</h4>
+                </div>
+                <div class="modal-body">
+                    @Html.Partial("_ImageList")
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

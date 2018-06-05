@@ -1,0 +1,81 @@
+﻿
+@{
+    ViewBag.Title = "AjaxImageForm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#btnUpload').click(function () {
+            debugger;
+            //var files = e.target.files;
+            var myId = $("#txtEmployeeId").val(); //uncomment this to make sure the ajax URL works
+            var formData = new FormData();
+            var totalFiles = document.getElementById("txtImage").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("txtImage").files[i];
+                formData.append("txtImage", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/Test/UploadFiles?id=' + myId,
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (result) {
+                    debugger;
+                    alert("Success");
+                },
+                error: function (error) {
+                    //debugger;
+                    window.location.href = "/Test/AjaxImageForm";
+                    window.location.assign("/Test/AjaxImageForm");
+                }
+            });
+
+        });
+    });
+</script>
+
+<h2>AjaxImageForm</h2>
+<div>
+    <form method="post" enctype="multipart/form-data">
+        <table border="1">
+            <tr>
+                <th colspan="2">
+                    Image Form
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    Employee
+                </td>
+                <td>
+                    <select name="txtEmployeeId" id="txtEmployeeId">
+                        <option value="">Select Employee</option>
+                        @foreach (var item in ViewBag.EmployeeList)
+                        {
+                            <option value="@item.EmpId">@item.Name</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Image
+                </td>
+                <td>
+                    <input type="file" name="txtImage" id="txtImage" accept="image/*" multiple="multiple" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" name="btnUpload" id="btnUpload" value="Upload" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

@@ -1,0 +1,44 @@
+﻿
+@{
+    ViewBag.Title = "ImageForm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div>
+    <form name="form1" method="post" action="/Test/ImageForm" enctype="multipart/form-data">
+        <table border="1">
+            <tr>
+                <th colspan="2">
+                    Image Form
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    Employee
+                </td>
+                <td>
+                    <select name="txtEmployeeId" id="txtEmployeeId">
+                        <option value="">Select Employee</option>
+                        @foreach (var item in ViewBag.EmployeeList)
+                    {
+                            <option value="@item.EmpId">@item.Name</option>
+                    }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Image
+                </td>
+                <td>
+                    <input type="file" name="txtImage" id="txtImage" accept="image/*" multiple="multiple" />
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" name="txtUpload" id="txtUpload" value="Upload" />
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>

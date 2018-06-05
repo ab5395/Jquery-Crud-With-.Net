@@ -1,0 +1,93 @@
+﻿<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+        $(document).ready(function () {
+            var path = "@Url.Action("BindStateList", "ManageEmployee")";
+            $("#txtEditCountry").change(function () {
+                $('#txtEditState').empty();
+                $.getJSON('/ManageEmployee/BindStateList/' + $('#txtEditCountry').val(), function (data) {
+                    var items = '<option value="">Select a State</option>';
+                    $.each(data, function (i, state) {
+                        items += "<option value='" + state.Value + "'>" + state.Text + "</option>";
+                    });
+                    $('#txtEditState').html(items);
+                });
+            });
+
+            $("#txtEditState").change(function () {
+                $('#txtEditCity').empty();
+                $.getJSON('/ManageEmployee/BindCityList/' + $('#txtEditState').val(), function (data) {
+                    var items = '<option value="">Select a City</option>';
+                    $.each(data, function (i, state) {
+                        items += "<option value='" + state.Value + "'>" + state.Text + "</option>";
+                    });
+                    $('#txtEditCity').html(items);
+                });
+            });
+
+            $("#btnUpdate").click(function () {
+                //debugger;
+                var obj = {};
+                obj.city = $("#txtEditCity").val();
+                obj.name = $("#txtEditName").val();
+                obj.mobile = $("#txtEditMobile").val();
+                obj.department = $("#txtEditDepartment").val();
+                obj.Eid = $("#txtEID").val();
+                $.ajax({
+                    type: "POST",
+                    url: "/ManageEmployee/UpdateEmployee",
+                    data: "{'city':'" + obj.city + "','name':'" + obj.name + "','department':'" + obj.department + "','mobile':'" + obj.mobile + "','employee':'" + obj.Eid + "'}",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        $("#EmployeeList").load(" #EmployeeList");
+                        $('#EditModal').modal('hide');
+                    }
+                });
+
+            });
+        });
+</script>
+
+<form>
+    <div class="form-group">
+        <label>Name</label>
+        <input type="text" name="txtEditName" id="txtEditName" class="form-control" />
+        <input type="hidden" name="txtEID" id="txtEID" />
+    </div>
+    <div class="form-group">
+        <label>Department</label>
+        <input type="text" name="txtEditDepartment" id="txtEditDepartment" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Mobile</label>
+        <input type="text" name="txtEditMobile" id="txtEditMobile" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Country</label>
+        <select name="txtEditCountry" id="txtEditCountry" class="form-control">
+            <option value="">Select Country</option>
+            @foreach (var data in ViewBag.CountryList)
+            {
+                <option value="@data.CountryId">@data.Country1</option>
+            }
+        </select>
+
+    </div>
+    <div class="form-group">
+        <label>State</label>
+        <select name="txtEditState" id="txtEditState" class="form-control">
+            <option value="">Select State</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>City</label>
+        <select name="txtEditCity" id="txtEditCity" class="form-control">
+            <option value="">Select City</option>
+        </select>
+    </div>
+    <input type="button" name="btnUpdate" value="Update" id="btnUpdate" class="btn btn-default" />
+    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</form>
+

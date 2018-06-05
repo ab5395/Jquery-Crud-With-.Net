@@ -1,0 +1,65 @@
+﻿<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnImageInsert").click(function () {
+            debugger;
+            //var files = e.target.files;
+            var myId = $("#txtImgEmpId").val(); //uncomment this to make sure the ajax URL works
+            var formData = new FormData();
+            var totalFiles = document.getElementById("txtImage").files.length;
+            for (var i = 0; i < totalFiles; i++) {
+                var file = document.getElementById("txtImage").files[i];
+                formData.append("txtImage", file);
+            }
+            $.ajax({
+                type: "POST",
+                url: '/ManageEmployee/UploadFiles?id=' + myId,
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (result) {
+                    debugger;
+                    //alert("Success");
+                    $("#txtImage").val('');
+                    $('#AddImageModal').modal('hide');
+                },
+                error: function (error) {
+                    debugger;
+                    alert(error.success);
+                    $('#AddImageModal').modal('hide');
+                }
+            });
+        });
+
+        $(".imagelistbyid").click(function () {
+            debugger;
+            $('#imagelistforemployee').empty();
+            var id = $("#txtImgEmpId").val();
+            $("#txtImgListEmpId").val(id);
+            $.getJSON('/ManageEmployee/ImageListByEmpId/' + $('#txtImgEmpId').val(), function (data) {
+                $.each(data, function (i, imagelist) {
+                    debugger;
+                    var eid = imagelist.Value;
+                    var image = imagelist.Text;
+                    var imagesrc = '/Images/' + eid +'/'+ image;
+                    $("<img src='" + imagesrc + "' style='height:150px;width:150px;' />").appendTo("#imagelistforemployee");
+                    $('#AddImageModal').modal('hide');
+                });
+            });
+        });
+
+    });
+</script>
+
+
+
+<form>
+    <div class="form-group">
+        <label>Image</label>
+        <input type="file" name="txtImage" id="txtImage" accept="image/*" multiple="multiple" />
+        <input type="hidden" name="txtImgEmpId" id="txtImgEmpId" />
+    </div>
+    <input type="button" name="btnImageInsert" value="Upload" id="btnImageInsert" class="btn btn-default" />
+    <button type="button" class="btn btn-default imagelistbyid" data-toggle="modal" data-target="#ImageListByIdModal">
+        Image List
+    </button>
+</form>
